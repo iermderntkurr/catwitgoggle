@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styleshome.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Cat wit goggle</title>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="js.js"></script>
+<style>
+    /* Add the new styles here */
+    .menu-icon {
+        font-size: 1.5em;
+        cursor: pointer;
+        display: none;
+        z-index: 1000; /* Ensure the menu icon appears above other elements */
+    }
+
+    @media screen and (max-width: 700px) {
+        .navbar {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%; /* Ensure the menu covers the full width */
+            background-color: #111729; /* Add background color for visibility */
+            z-index: 999; /* Ensure the menu appears above other elements */
+        }
+
+        .navbar.active {
+            display: flex;
+        }
+
+        .menu-icon {
+            display: block;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+        }
+
+        ul {
+            width: 100%;
+            text-align: center;
+            padding: 0; /* Remove default padding */
+        }
+
+        li {
+            margin: 15px 0;
+            list-style: none; /* Remove default list styling */
+        }
+
+        .nav-link {
+            text-decoration: none; /* Remove underline from links */
+            color: #FFFFFF; /* Set link color */
+            display: block;
+            padding: 10px;
+        }
+    }
+
+    /* Additional styles for image upload and drag */
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        text-align: center;
+    }
+
+    #uploaded-photo-container {
+        max-width: 600px;
+        margin: 20px auto;
+        border: 2px dashed #ccc;
+        position: relative;
+    }
+
+    #uploaded-photo {
+        display: none;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    #drag-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+    }
+
+    #drag-image {
+        width: 200px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        cursor: move;
+        z-index: 1;
+    }
+            /* Change color of filename to white */
+            input[type="file"] {
+            color: white;
+    }            
+</style>
+</head>
+<body>
+<div class="menu-icon" onclick="toggleMenu()">☰</div>
+<nav class="navbar" id="navbar">
+  <ul>
+    <li class="home">
+      <a href="https://iermderntkurr.github.io/catwitgoggle/" class="nav-link home-link">Home</a>
+    </li>
+    <li class="purchase">
+      <a href="https://dexscreener.com/base/0xc720836372540fff0f4c8ce68bddbfbfc66869a1" class="nav-link">Purchase $WIT</a>
+    </li>
+  </ul>
+</nav>
+
+<h1 class="home-title">
+  <span>I erm</span>
+  <span>cat wit goggle</span>
+</h1>
+
+<img src="homeimages/Goggle_Cat.jpg" alt="Image Description" class="floating-image" />
+
+<div class="buttonshome">
+  <button class="twitter-button" onclick="window.location.href='https://twitter.com/catwitgoggle'">Twitter</button>
+  <button class="telegram-button" onclick="window.location.href='https://t.me/catwitgoggle'">Telegram</button>
+  <button class="dexcreener-button" onclick="window.location.href='https://dexscreener.com/base/0xc720836372540fff0f4c8ce68bddbfbfc66869a1'">Dexscreener</button>
+  <button class="buy-now-button" onclick="window.location.href='https://app.uniswap.org/swap?outputCurrency=0xC720836372540ffF0f4c8ce68BdDbfBFC66869a1&chain=base'">Buy $WIT</button>
+</div>
+
+<h1 class="home-title">
+    <span>Put on</span>
+    <span>the goggles</span>
+</h1>
+
+<div class="container">
+    <input type="file" id="userPhotoInput" accept="image/*">
+    <div id="uploaded-photo-container">
+        <img id="uploaded-photo" src="#" alt="Uploaded Photo">
+        <div id="drag-overlay">
+            <img id="drag-image" src="png/goggles.png" alt="Drag Image">
+        </div>
+    </div>
+    <div class="buttonshome">
+        <button onclick="rotateLeft()">Rotate Left</button>
+        <button onclick="rotateRight()">Rotate Right</button>
+        <button onclick="scaleUp()">Scale Up</button>
+        <button onclick="scaleDown()">Scale Down</button>
+    </div>
+</div>
+
+<div class="disclaimer">
+    <p>
+        $WIT is just a meme coin with no intrinsic value or expectation
+        of financial return. It’s built by a passionate set of contributors
+        solely for entertainment and community engagement purposes.
+    </p>
+</div>
+
+<!-- Add this script before the closing tag -->
+<script>
+    document.getElementById('userPhotoInput').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            const preview = document.getElementById('uploaded-photo');
+            preview.src = event.target.result;
+            preview.style.display = 'block';
+            document.getElementById('drag-overlay').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    const dragImage = document.getElementById('drag-image');
+    let isDragging = false;
+    let initialX, initialY;
+    let rotation = 0;
+    let scale = 1;
+
+    dragImage.addEventListener('mousedown', startDragging);
+    dragImage.addEventListener('touchstart', startDragging);
+
+    function startDragging(e) {
+        e.preventDefault();
+        isDragging = true;
+        initialX = e.clientX || e.touches[0].clientX;
+        initialY = e.clientY || e.touches[0].clientY;
+
+        document.addEventListener('mousemove', dragImageHandler);
+        document.addEventListener('touchmove', dragImageHandler);
+        document.addEventListener('mouseup', endDragging);
+        document.addEventListener('touchend', endDragging);
+    }
+
+    function dragImageHandler(e) {
+        if (isDragging) {
+            const x = (e.clientX || e.touches[0].clientX) - initialX;
+            const y = (e.clientY || e.touches[0].clientY) - initialY;
+
+            dragImage.style.left = `${dragImage.offsetLeft + x}px`;
+            dragImage.style.top = `${dragImage.offsetTop + y}px`;
+
+            initialX = e.clientX || e.touches[0].clientX;
+            initialY = e.clientY || e.touches[0].clientY;
+        }
+    }
+
+    function endDragging() {
+        isDragging = false;
+        document.removeEventListener('mousemove', dragImageHandler);
+        document.removeEventListener('touchmove', dragImageHandler);
+        document.removeEventListener('mouseup', endDragging);
+        document.removeEventListener('touchend', endDragging);
+    }
+
+    function rotateLeft() {
+        rotation -= 15;
+        dragImage.style.transform = `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`;
+    }
+
+    function rotateRight() {
+        rotation += 15;
+        dragImage.style.transform = `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`;
+    }
+
+    function scaleUp() {
+        scale += 0.1;
+        dragImage.style.transform = `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`;
+    }
+
+    function scaleDown() {
+        if (scale > 0.1) {
+            scale -= 0.1;
+            dragImage.style.transform = `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`;
+        }
+    }
+
+    function toggleMenu() {
+        const navbar = document.getElementById("navbar");
+        navbar.classList.toggle("active");
+    }
+</script>
+</body>
+</html>
